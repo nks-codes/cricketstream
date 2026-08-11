@@ -1,49 +1,11 @@
-const flagMap = {
-  Pakistan:"🇵🇰", India:"🇮🇳", Australia:"🇦🇺", England:"🏴", "South Africa":"🇿🇦",
-  "Sri Lanka":"🇱🇰", "New Zealand":"🇳🇿", "West Indies":"🏝️", Bangladesh:"🇧🇩",
-  Afghanistan:"🇦🇫", Zimbabwe:"🇿🇼", Ireland:"🇮🇪", Nepal:"🇳🇵"
-};
-function toggleMenu(){ const m=document.getElementById("mobileMenu"); if(m)m.classList.toggle("open"); }
-
-function esc(value){
-  return String(value ?? "—").replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
-}
-function flag(team){ return flagMap[team] || "🏏"; }
-
-function renderMatches(matches){
-  const grid=document.getElementById("matchGrid");
-  if(!grid)return;
-  if(!matches.length){ grid.innerHTML='<div class="loading-card">No cricket matches available right now.</div>'; return; }
-  grid.innerHTML=matches.slice(0,12).map(m=>{
-    const home=m.home_team || m.home || m.team1 || "Team 1";
-    const away=m.away_team || m.away || m.team2 || "Team 2";
-    const hs=m.home_score ?? m.homeScore ?? "—";
-    const as=m.away_score ?? m.awayScore ?? "—";
-    const status=m.status || m.state || "Upcoming";
-    const comp=m.competition || m.league || m.tournament || "Cricket";
-    const isLive=/live|inplay|playing/i.test(status);
-    return `<article class="match-card">
-      <div class="match-status"><span>${esc(comp)}</span><span class="${isLive?'live':''}">${isLive?'● LIVE':esc(status)}</span></div>
-      <div class="match-teams">
-        <div class="team"><span class="flag">${flag(home)}</span><strong>${esc(home)}</strong><small>${esc(hs)}</small></div>
-        <span class="vs">VS</span>
-        <div class="team"><span class="flag">${flag(away)}</span><strong>${esc(away)}</strong><small>${esc(as)}</small></div>
-      </div>
-      <div class="match-comp">${isLive?'Live score':'Match details'} · CricketStream.live</div>
-    </article>`;
-  }).join("");
-}
-
-async function loadMatches(){
-  const status=document.getElementById("apiStatus");
-  try{
-    const matches=await getCricketMatches();
-    renderMatches(matches);
-    if(status) status.innerHTML='Live data provided by <a href="https://sportscore.com/" rel="dofollow" style="color:#ff6688">SportScore</a>.';
-  }catch(error){
-    renderMatches(fallbackMatches());
-    if(status) status.textContent="Live data is temporarily unavailable. Showing placeholder matches.";
-    console.error(error);
-  }
-}
-document.addEventListener("DOMContentLoaded",loadMatches);
+const flagMap={Pakistan:"🇵🇰",India:"🇮🇳",Australia:"🇦🇺",England:"🏴","South Africa":"🇿🇦","Sri Lanka":"🇱🇰","New Zealand":"🇳🇿","West Indies":"🏝️",Bangladesh:"🇧🇩",Afghanistan:"🇦🇫",Zimbabwe:"🇿🇼",Ireland:"🇮🇪",Nepal:"🇳🇵"};
+function toggleMenu(){document.getElementById("mobileMenu")?.classList.toggle("open")}
+function esc(v){return String(v??"—").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[c]))}
+function flag(t){return flagMap[t]||"🏏"} function score(v,o){return v===null||v===undefined||v===""?"—":o?`${v} (${o})`:String(v)}
+function live(s){return /live|inplay|in-play|playing|innings/i.test(String(s))}
+function renderMatches(raw){const g=document.getElementById("matchGrid");if(!g)return;const ms=raw.map(normaliseMatch);if(!ms.length){g.innerHTML='<div class="loading-card">No cricket matches available right now.</div>';return}g.innerHTML=ms.slice(0,12).map(m=>{const l=live(m.status),url=m.slug?`match.html?slug=${encodeURIComponent(m.slug)}`:"";const x=`<div class="match-status"><span>${esc(m.competition)}</span><span class="${l?"live":""}">${l?"● LIVE":esc(m.status)}</span></div><div class="match-teams"><div class="team"><span class="flag">${flag(m.home)}</span><strong>${esc(m.home)}</strong><small>${esc(score(m.hs,m.ho))}</small></div><span class="vs">VS</span><div class="team"><span class="flag">${flag(m.away)}</span><strong>${esc(m.away)}</strong><small>${esc(score(m.as,m.ao))}</small></div></div><div class="match-comp">${url?"View scorecard →":"Match details"} · CricketStream.live</div>`;return url?`<a class="match-card" href="${url}">${x}</a>`:`<article class="match-card">${x}</article>`}).join("")}
+async function loadMatches(){try{const d=await getCricketMatches();renderMatches(d);const s=document.getElementById("apiStatus");if(s)s.innerHTML='Live data provided by <a href="https://sportscore.com/" rel="dofollow" style="color:#ff6688">SportScore</a>. API responses are cached for 60 seconds.'}catch(e){renderMatches(fallbackMatches());const s=document.getElementById("apiStatus");if(s)s.textContent="Live data is temporarily unavailable. Showing placeholders.";console.error(e)}}
+function renderDetail(d){const r=document.getElementById("matchDetail"),m=normaliseMatch(d);if(!r)return;const title=first(d,["name","title","match_name","matchName"],`${m.home} vs ${m.away}`),venue=first(d,["venue.name","venue","stadium.name","stadium"],""),date=first(d,["start_time","startTime","date","datetime"],""),winner=first(d,["winner.name","winner","result"],"");r.innerHTML=`<div class="score-hero"><div class="match-status"><span>${esc(m.competition)}</span><span class="${live(m.status)?"live":""}">${live(m.status)?"● LIVE":esc(m.status)}</span></div><h1>${esc(title)}</h1><div class="big-score"><div><span>${flag(m.home)}</span><strong>${esc(m.home)}</strong><b>${esc(score(m.hs,m.ho))}</b></div><em>VS</em><div><span>${flag(m.away)}</span><strong>${esc(m.away)}</strong><b>${esc(score(m.as,m.ao))}</b></div></div>${winner?`<div class="result-line">${esc(winner)}</div>`:""}</div><div class="detail-tabs"><a class="selected" href="#scorecard">Scorecard</a><a href="#summary">Summary</a><a href="#info">Info</a></div><section id="scorecard" class="detail-panel"><h2>Scorecard</h2>${renderScorecard(d)}</section><section id="summary" class="detail-panel"><h2>Match Summary</h2><p class="muted">Detailed timeline information will appear when supplied by the provider.</p></section><section id="info" class="detail-panel"><h2>Match Information</h2><div class="info-list">${venue?`<div><span>Venue</span><b>${esc(venue)}</b></div>`:""}${date?`<div><span>Start</span><b>${esc(date)}</b></div>`:""}<div><span>Status</span><b>${esc(m.status)}</b></div></div></section>`}
+function renderScorecard(d){const innings=first(d,["scorecard.innings","innings","scorecard"],[]);if(!Array.isArray(innings)||!innings.length)return'<div class="empty-scorecard">Detailed innings/scorecard data is not available for this match yet.</div>';return innings.map((inn,i)=>{const n=first(inn,["team.name","team","name"],`Innings ${i+1}`),rows=first(inn,["batting","batsmen","players"],[]),list=Array.isArray(rows)?rows.slice(0,20).map(p=>`<div class="score-row"><span>${esc(first(p,["player.name","player","name"],"Player"))}</span><b>${esc(first(p,["runs","score"],"—"))}</b><small>${esc(first(p,["balls","ballsfaced"],""))}</small></div>`).join(""):"";return`<div class="innings"><h3>${esc(n)}</h3>${list||'<div class="muted" style="padding:12px">Batting details not available yet.</div>'}</div>`}).join("")}
+async function loadDetail(){const r=document.getElementById("matchDetail"),s=document.getElementById("detailStatus"),slug=new URLSearchParams(location.search).get("slug");if(!slug){r.innerHTML='<div class="loading-card">No match was selected.</div>';return}try{renderDetail(await getCricketMatch(slug));if(s)s.innerHTML='Data provided by <a href="https://sportscore.com/" rel="dofollow" style="color:#ff6688">SportScore</a>.'}catch(e){r.innerHTML='<div class="loading-card">Unable to load this match right now.</div>';if(s)s.textContent="The match detail request failed.";console.error(e)}}
+document.addEventListener("DOMContentLoaded",()=>{if(document.getElementById("matchGrid"))loadMatches();if(document.getElementById("matchDetail"))loadDetail()});

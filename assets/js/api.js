@@ -1,16 +1,10 @@
-const CRICKET_API = "https://sportscore.com/api/widget/matches/?sport=cricket&limit=50&src=cricketstream.live";
-
-async function getCricketMatches() {
-  const response = await fetch(CRICKET_API, { headers: { "Accept": "application/json" } });
-  if (!response.ok) throw new Error("Cricket API request failed");
-  const data = await response.json();
-  return Array.isArray(data.matches) ? data.matches : (Array.isArray(data) ? data : []);
-}
-
-function fallbackMatches() {
-  return [
-    {home_team:"Pakistan", away_team:"India", home_score:"—", away_score:"—", status:"Upcoming", competition:"International Cricket"},
-    {home_team:"South Africa", away_team:"Sri Lanka", home_score:"—", away_score:"—", status:"Upcoming", competition:"T20 Cricket"},
-    {home_team:"England", away_team:"West Indies", home_score:"—", away_score:"—", status:"Upcoming", competition:"International Cricket"}
-  ];
-}
+const API_BASE="https://sportscore.com/api/widget",API_SRC="cricketstream.live";
+async function apiGet(path,params={}){const u=new URL(API_BASE+path);Object.entries({...params,src:API_SRC}).forEach(([k,v])=>{if(v!==undefined&&v!==null&&v!=="")u.searchParams.set(k,v)});const r=await fetch(u,{headers:{Accept:"application/json"}});if(!r.ok)throw Error("API request failed: "+r.status);return r.json()}
+async function getCricketMatches(){const d=await apiGet("/matches/",{sport:"cricket",limit:50});return Array.isArray(d?.matches)?d.matches:Array.isArray(d)?d:[]}
+async function getCricketMatch(slug){const d=await apiGet("/match/",{sport:"cricket",slug});return d?.match||d}
+function first(o,paths,f=""){for(const p of paths){const v=p.split(".").reduce((x,k)=>x?.[k],o);if(v!==undefined&&v!==null&&v!=="")return v}return f}
+function teamName(t,f){return typeof t==="string"?t:first(t||{},["name","short_name","shortName","title"],f)}
+function teamScore(t){return t&&typeof t!=="string"?first(t,["score","current_score","currentScore","runs","total"],null):null}
+function teamOvers(t){return t&&typeof t!=="string"?first(t,["overs","current_overs","currentOvers"],""):""}
+function normaliseMatch(m){const h=first(m,["home_team","homeTeam","home","teams.home"],{}),a=first(m,["away_team","awayTeam","away","teams.away"],{});return{raw:m,home:teamName(h,first(m,["home_name","homeName","team1_name","team1"],"Team 1")),away:teamName(a,first(m,["away_name","awayName","team2_name","team2"],"Team 2")),hs:teamScore(h)??first(m,["home_score","homeScore","score.home","scores.home"],null),as:teamScore(a)??first(m,["away_score","awayScore","score.away","scores.away"],null),ho:teamOvers(h)||first(m,["home_overs","homeOvers","overs.home"],""),ao:teamOvers(a)||first(m,["away_overs","awayOvers","overs.away"],""),status:first(m,["status","state","match_status","matchStatus","status_text"],"Upcoming"),competition:first(m,["competition.name","competition.title","league.name","league.title","tournament.name","tournament"],"Cricket"),slug:first(m,["slug","match_slug","matchSlug"],""),id:first(m,["id","match_id","matchId"],"")}}
+function fallbackMatches(){return[{home:"Pakistan",away:"India",hs:null,as:null,ho:"",ao:"",status:"Upcoming",competition:"International Cricket",slug:"",id:""},{home:"South Africa",away:"Sri Lanka",hs:null,as:null,ho:"",ao:"",status:"Upcoming",competition:"International Cricket",slug:"",id:""},{home:"England",away:"West Indies",hs:null,as:null,ho:"",ao:"",status:"Upcoming",competition:"International Cricket",slug:"",id:""}]}
