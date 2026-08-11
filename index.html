@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="CricketStream.live — live cricket scores, upcoming matches, results, scorecards and cricket updates.">
+  <meta name="robots" content="index,follow">
+  <link rel="canonical" href="https://cricketstream.live/">
+  <meta name="theme-color" content="#07111f">
+  <title>CricketStream.live — Live Cricket Scores & Matches</title>
+  <link rel="stylesheet" href="assets/css/style.css">
+</head>
+<body>
+  <header class="topbar">
+    <a class="brand" href="index.html"><span class="ball">●</span> CRICKET<span>STREAM</span><b>.LIVE</b></a>
+    <nav class="desktop-nav">
+      <a class="active" href="index.html">Home</a>
+      <a href="matches.html">Matches</a>
+      <a href="#news">News</a>
+      <a href="#about">About</a>
+    </nav>
+    <button class="menu-btn" aria-label="Open menu" onclick="toggleMenu()">☰</button>
+  </header>
+
+  <div id="mobileMenu" class="mobile-menu">
+    <a href="index.html">Home</a>
+    <a href="matches.html">Matches</a>
+    <a href="#news">News</a>
+    <a href="about.html">About</a>
+    <a href="privacy.html">Privacy</a>
+    <a href="contact.html">Contact</a>
+  </div>
+
+  <main class="container">
+    <section class="hero">
+      <div>
+        <span class="eyebrow">🏏 CRICKET, SIMPLIFIED</span>
+        <h1>Live cricket scores,<br><strong>faster & cleaner.</strong></h1>
+        <p>Follow live matches, upcoming fixtures, results and cricket updates in a fast, mobile-first interface.</p>
+        <div class="hero-actions">
+          <a class="btn primary" href="matches.html">View Matches</a>
+          <a class="btn secondary" href="#live">Live Scores</a>
+        </div>
+      </div>
+      <div class="hero-card">
+        <div class="mini-top"><span>LIVE MATCH</span><i>● LIVE</i></div>
+        <div class="teams">
+          <div><span class="flag">🇵🇰</span><strong>PAK</strong><small>0/0</small></div>
+          <b>VS</b>
+          <div><span class="flag">🇮🇳</span><strong>IND</strong><small>0/0</small></div>
+        </div>
+        <div class="competition">International Cricket</div>
+      </div>
+    </section>
+
+    <div class="ad-slot" aria-label="Advertisement">
+      <span>Advertisement</span>
+    </div>
+
+    <section id="live" class="section">
+      <div class="section-head">
+        <div><span class="eyebrow">LIVE & RECENT</span><h2>Cricket Matches</h2></div>
+        <a href="matches.html">See all →</a>
+      </div>
+      <div id="matchGrid" class="match-grid">
+        <div class="loading-card">Loading live cricket data…</div>
+      </div>
+      <div id="apiStatus" class="api-status"></div>
+    </section>
+
+    <section class="feature-grid">
+      <article><span class="feature-icon">⚡</span><h3>Live Scores</h3><p>Quick score updates in a responsive interface.</p></article>
+      <article><span class="feature-icon">📅</span><h3>Match Schedule</h3><p>Find upcoming matches and recent results.</p></article>
+      <article><span class="feature-icon">📊</span><h3>Scorecards</h3><p>Detailed match information as the project grows.</p></article>
+      <article><span class="feature-icon">🔎</span><h3>Search</h3><p>Search matches, teams, series and players.</p></article>
+    </section>
+
+    <section id="news" class="section">
+      <div class="section-head"><div><span class="eyebrow">LATEST</span><h2>Cricket Updates</h2></div></div>
+      <div class="news-grid">
+        <article class="news-card"><div class="news-placeholder">🏏</div><div><small>CricketStream.live</small><h3>Live cricket scores and match updates</h3><p>Our news section will be expanded with original cricket content.</p></div></article>
+        <article class="news-card"><div class="news-placeholder">📣</div><div><small>Coming soon</small><h3>Series, teams and player coverage</h3><p>Useful cricket information, schedules and statistics in one place.</p></div></article>
+      </div>
+    </section>
+
+    <section id="about" class="info-strip">
+      <h2>Built for cricket fans</h2>
+      <p>CricketStream.live is being developed as a fast, simple destination for cricket scores, schedules, results and useful cricket information.</p>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-main">
+      <div><a class="brand" href="index.html"><span class="ball">●</span> CRICKET<span>STREAM</span><b>.LIVE</b></a><p>Live cricket scores, fixtures, results and cricket information.</p></div>
+      <div class="footer-links">
+        <a href="about.html">About</a><a href="privacy.html">Privacy Policy</a><a href="terms.html">Terms</a>
+        <a href="disclaimer.html">Disclaimer</a><a href="dmca.html">DMCA</a><a href="contact.html">Contact</a>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 CricketStream.live. All rights reserved.</span>
+      <a href="https://sportscore.com/" rel="dofollow">Powered by SportScore</a>
+    </div>
+  </footer>
+
+  <script src="assets/js/api.js"></script>
+  <script src="assets/js/app.js"></script>
+</body>
+</html>
